@@ -18,8 +18,8 @@ import java.net.SocketException;
 public class ChatActivity extends AppCompatActivity {
     Socket socket = null;
     BufferedWriter writer;
-    String name = "User1";
-    String address = "192.168.1.167";
+    String name = "Zuhi";
+    String address = "145.126.96.38";
     int port = 8080;
     private TextView chatTextView;
     private EditText messageEditText;

@@ -1,18 +1,9 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".MainActivity">
-
-
-    <Button
-        android:id="@+id/chatButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="CHAT" />
+    android:orientation="vertical">
 
     <EditText
         android:id="@+id/usernameText"
@@ -21,7 +12,6 @@
         android:ems="10"
         android:inputType="text"
         android:text="Username"
-        tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="47dp"
         tools:layout_editor_absoluteY="162dp" />
 
@@ -32,23 +22,17 @@
         android:ems="10"
         android:inputType="textPassword"
         android:text="Password"
-        tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="47dp"
         tools:layout_editor_absoluteY="231dp" />
 
     <Button
-        android:id="@+id/logInButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="logIn" />
-
-    <Button
         android:id="@+id/signUpButton"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sign Up" />
-
-
+        android:text="Submit"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="126dp"
+        tools:layout_editor_absoluteY="313dp" />
 
 
 </LinearLayout>
