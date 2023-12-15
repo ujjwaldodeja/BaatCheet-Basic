@@ -1,0 +1,38 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+
+    <Button
+        android:id="@+id/chatButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CHAT" />
+
+<!--    <ScrollView-->
+<!--        android:layout_width="380dp"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:layout_weight="1">-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/chatTextView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="bottom"-->
+<!--            android:gravity="bottom"-->
+<!--            android:text="" />-->
+<!--    </ScrollView>-->
+
+    <Button
+        android:id="@+id/quitButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Quit" />
+
+
+</LinearLayout>

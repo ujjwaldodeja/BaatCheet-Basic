@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ChatActivity">
+
+
+    <TextView
+        android:id="@+id/chatTextView"
+        android:layout_width="324dp"
+        android:layout_height="145dp"
+        android:text="chatView"
+        tools:layout_editor_absoluteX="28dp"
+        tools:layout_editor_absoluteY="126dp" />
+
+    <EditText
+        android:id="@+id/recipientEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Recipient's Username"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="298dp" />
+
+    <EditText
+        android:id="@+id/messageEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Type a message"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="343dp" />
+
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SEND"
+        tools:layout_editor_absoluteX="158dp"
+        tools:layout_editor_absoluteY="442dp" />
+</LinearLayout>
