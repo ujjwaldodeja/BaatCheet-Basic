@@ -8,15 +8,22 @@
     tools:context=".MainActivity">
 
 
-    <Button
-        android:id="@+id/chatButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="CHAT" />
+<!--    <Button-->
+<!--        android:id="@+id/chatButton"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="CHAT" />-->
+    <TextView
+        android:id="@+id/updateView"
+        android:layout_width="324dp"
+        android:layout_height="145dp"
+        android:text="chatView"
+        tools:layout_editor_absoluteX="28dp"
+        tools:layout_editor_absoluteY="126dp" />
 
     <EditText
         android:id="@+id/usernameText"
-        android:layout_width="284dp"
+        android:layout_width="322dp"
         android:layout_height="60dp"
         android:ems="10"
         android:inputType="text"
@@ -27,7 +34,7 @@
 
     <EditText
         android:id="@+id/passwordText"
-        android:layout_width="280dp"
+        android:layout_width="319dp"
         android:layout_height="61dp"
         android:ems="10"
         android:inputType="textPassword"
@@ -47,8 +54,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sign Up" />
-
-
 
 
 </LinearLayout>
