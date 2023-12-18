@@ -13,6 +13,8 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.SecretKey;
 
@@ -31,6 +33,8 @@ public class Client {
     private KeyPair keyPair;
 
     private SecretKey serverSecretKey;
+    private Map<String, String> userKeys = new HashMap<>();
+    private Map<String, SecretKey> secretKeys = new HashMap<>();
 
     private Client() {
 //        try {
@@ -100,9 +104,20 @@ public class Client {
 
                                 case "LIST": {
                                     System.out.println(line);
-                                    for (String user : line.split("~")) {
-                                        System.out.println(user + "\n");
+                                    String[] users = line.split("~");
+                                    for (int i = 1; i < users.length; i++) {
+                                        String[] userDetail = users[i].split(",");
+                                        String userName = userDetail[0];
+                                        System.out.println(userName);
+                                        String userPublicKeyBase64 = userDetail[1];
+                                        System.out.println(userPublicKeyBase64);
+                                        userKeys.putIfAbsent(userName, userPublicKeyBase64);
+                                        SecretKey userSecret = DiffieHellmanKeyExchange.performKeyExchange(userPublicKeyBase64, getKeyPair());
+                                        secretKeys.putIfAbsent(userName, userSecret);
+                                        System.out.println(users[i] + "\n");
                                     }
+                                    System.out.println(userKeys + "\n");
+                                    System.out.println(secretKeys);
                                 }
                                 break;
 
@@ -227,21 +242,21 @@ public class Client {
      *
      * @param name String
      */
-    public void setName(String name) {
+    public synchronized void setName(String name) {
         this.username = name;
     }
 
 
-    public void logout() {
+    public synchronized void logout() {
         loggedIn = false;
         already = false;
     }
 
-    public KeyPair getKeyPair(){
+    public synchronized KeyPair getKeyPair(){
         return keyPair;
     }
 
-    public void setKeyPair(KeyPair generatedKeyPair) {
+    public synchronized void setKeyPair(KeyPair generatedKeyPair) {
         this.keyPair = generatedKeyPair;
     }
 }

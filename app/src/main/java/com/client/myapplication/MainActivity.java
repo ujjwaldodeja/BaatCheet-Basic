@@ -53,13 +53,14 @@ public class MainActivity extends AppCompatActivity {
                 username = usernameText.getText().toString();
                 String password = passwordText.getText().toString();
                 String loginCommand = "LOGIN~" + username + "~" + password;
+                client.setName(username);
                 new SendCommandTask().execute(loginCommand);
-//                if(client.isLoggedIn() || client.isAlready()) {
+                if(client.isLoggedIn() || client.isAlready()) {
                     Intent i = new Intent(MainActivity.this, ChatActivity.class);
                     startActivity(i);
-//                } else {
-//                    updateView.append("INVALID Credentials");
-//                }
+                } else {
+                    updateView.append("INVALID Credentials");
+                }
             }
         });
 
