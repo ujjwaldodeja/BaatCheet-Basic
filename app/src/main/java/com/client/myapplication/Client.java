@@ -1,6 +1,7 @@
 package com.client.myapplication;
 
 import com.client.myapplication.Crypto.DiffieHellmanKeyExchange;
+import com.client.myapplication.Crypto.E2EE;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,7 +13,9 @@ import java.net.SocketException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
+import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -117,12 +120,14 @@ public class Client {
                                         System.out.println(users[i] + "\n");
                                     }
                                     System.out.println(userKeys + "\n");
-                                    System.out.println(secretKeys);
+                                    System.out.println("SECRET" + secretKeys);
                                 }
                                 break;
 
                                 case "TEXT": {
                                     System.out.println(line);
+                                    String[] params = line.split("~");
+                                    System.out.println("\n" + E2EE.decrypt(params[2], secretKeys.get(params[1])));
 //                            runOnUiThread(() -> updateChatView("Message from" + command[1] + command[command.length-1]));
 //                              updateChatView("Message from" + command[1] + command[command.length-1]);
                                 }
@@ -141,6 +146,10 @@ public class Client {
                 } catch (InvalidKeySpecException e) {
                     throw new RuntimeException(e);
                 } catch (InvalidKeyException e) {
+                    throw new RuntimeException(e);
+                } catch (NoSuchProviderException e) {
+                    throw new RuntimeException(e);
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
 //                catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException e) {
@@ -258,5 +267,9 @@ public class Client {
 
     public synchronized void setKeyPair(KeyPair generatedKeyPair) {
         this.keyPair = generatedKeyPair;
+    }
+
+    public synchronized SecretKey getSharedSecret(String recipient){
+        return secretKeys.get(recipient);
     }
 }

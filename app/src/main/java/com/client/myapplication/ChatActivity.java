@@ -10,10 +10,14 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.client.myapplication.Crypto.E2EE;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+
+import javax.crypto.SecretKey;
 
 public class ChatActivity extends AppCompatActivity {
     private Client client;
@@ -44,8 +48,17 @@ public class ChatActivity extends AppCompatActivity {
     public void sendMessage() {
         String recipient = recipientEditText.getText().toString();
         String message = messageEditText.getText().toString();
+        SecretKey recipientKey = client.getSharedSecret(recipient);
+
+        System.out.println("RK" + recipientKey);
+        String encryptedMessage = "";
         if (!recipient.isEmpty() && !message.isEmpty()) {
-            new SendCommandTask().execute("TEXT~" + recipient + "~" + client.getName() + "~" + message);
+            try {
+                encryptedMessage = E2EE.encrypt(message, recipientKey);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            new SendCommandTask().execute("TEXT~" + recipient + "~" + client.getName() + "~" + encryptedMessage);
             messageEditText.getText().clear();
             updateChatView("You to " + recipient + ": " + message);
         }
