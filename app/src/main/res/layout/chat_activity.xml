@@ -10,11 +10,24 @@
 
     <TextView
         android:id="@+id/chatTextView"
-        android:layout_width="324dp"
-        android:layout_height="145dp"
-        android:text="chatView"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:background="#82EACC"
         tools:layout_editor_absoluteX="28dp"
         tools:layout_editor_absoluteY="126dp" />
+
+<!--    <TextView-->
+<!--        android:id="@+id/lastReceived"-->
+<!--        android:layout_width="194dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="TextView" />-->
+
+    <TextView
+        android:id="@+id/lastSent"
+        android:layout_width="423dp"
+        android:layout_height="34dp"
+        android:background="#E44B4B"
+        android:paddingLeft="200px" />
 
     <EditText
         android:id="@+id/recipientEditText"
@@ -46,4 +59,5 @@
         android:text="LIST"
         tools:layout_editor_absoluteX="158dp"
         tools:layout_editor_absoluteY="442dp" />
+
 </LinearLayout>

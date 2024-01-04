@@ -49,6 +49,19 @@ public class Client {
         // Private constructor to enforce singleton pattern
     }
 
+    private ChatActivity chatActivity;
+
+
+    public void setChatActivity(ChatActivity chatActivity) {
+        this.chatActivity = chatActivity;
+    }
+
+    private void updateChatViewOnUiThread(String message) {
+        if (chatActivity != null) {
+            chatActivity.updateChatView(message);
+        }
+    }
+
     public static synchronized Client getInstance() {
         if (instance == null) {
             instance = new Client();
@@ -128,8 +141,8 @@ public class Client {
                                     System.out.println(line);
                                     String[] params = line.split("~");
                                     System.out.println("\n" + E2EE.decrypt(params[2], secretKeys.get(params[1])));
-//                            runOnUiThread(() -> updateChatView("Message from" + command[1] + command[command.length-1]));
-//                              updateChatView("Message from" + command[1] + command[command.length-1]);
+//                                    runOnUiThread(() -> updateChatView("Message from" + command[1] + command[command.length-1]));
+                                    updateChatViewOnUiThread("Message from " + command[1] + " " + E2EE.decrypt(params[2], secretKeys.get(params[1])));
                                 }
                                 break;
                                 default:
@@ -141,21 +154,9 @@ public class Client {
                     System.out.println("Connection with the server was lost. Thank you for playing!");
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    throw new RuntimeException(e);
-                } catch (InvalidKeySpecException e) {
-                    throw new RuntimeException(e);
-                } catch (InvalidKeyException e) {
-                    throw new RuntimeException(e);
-                } catch (NoSuchProviderException e) {
-                    throw new RuntimeException(e);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-//                catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException e) {
-////                    throw new RuntimeException(e);
-//                    System.out.println("Client run method : could not create shared secret");
-//                }
             }
         });
         thread.start();

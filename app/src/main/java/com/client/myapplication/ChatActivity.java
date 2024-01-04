@@ -12,16 +12,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.client.myapplication.Crypto.E2EE;
 
-import java.io.*;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketException;
-
 import javax.crypto.SecretKey;
 
 public class ChatActivity extends AppCompatActivity {
     private Client client;
     private TextView chatTextView;
+    private TextView lastSent;
+//    private TextView lastReceived;
     private EditText messageEditText;
     private EditText recipientEditText;
     private Button sendButton;
@@ -37,8 +34,11 @@ public class ChatActivity extends AppCompatActivity {
         recipientEditText = findViewById(R.id.recipientEditText);
         sendButton = findViewById(R.id.sendButton);
         listButton = findViewById(R.id.listButton);
+        lastSent = findViewById(R.id.lastSent);
+//        lastReceived = findViewById(R.id.lastReceived);
         client = Client.getInstance();
         System.out.println("Instance created");
+        client.setChatActivity(this);
 //        updateChatView("LOGGED IN");
 //        new SendCommandTask().execute("LIST");
         sendButton.setOnClickListener(view -> sendMessage());
@@ -60,14 +60,19 @@ public class ChatActivity extends AppCompatActivity {
             }
             new SendCommandTask().execute("TEXT~" + recipient + "~" + client.getName() + "~" + encryptedMessage);
             messageEditText.getText().clear();
-            updateChatView("You to " + recipient + ": " + message);
+            updateSentView(recipient + ": " + message);
         }
     }
     public void updateChatView(String message) {
         chatTextView.append(message + "\n");
     }
 
-
+    public void updateSentView(String message) {
+        lastSent.append(message + "\n");
+    }
+//    public void updateReceivedView(String message) {
+//        lastReceived.append(message + "\n");
+//    }
     private class SendCommandTask extends AsyncTask<String, Void, Void> {
         @Override
         protected Void doInBackground(String... params) {

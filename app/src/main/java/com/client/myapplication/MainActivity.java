@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(client.getKeyPair());
 //        client.logout(); //should be logged out when going back form chatActivity ---not very import for nwo
         new ConnectTask().execute();
+        client.setChatActivity(new ChatActivity());
 //        updateView.append("");
         logInButton.setOnClickListener(new View.OnClickListener() {
             @Override
