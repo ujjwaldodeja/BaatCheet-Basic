@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         updateView = findViewById(R.id.updateView);
         usernameText = findViewById(R.id.usernameText);
         passwordText = findViewById(R.id.passwordText);
-        System.out.println("Done");
+//        System.out.println("Done");
 
         client = Client.getInstance();
         System.out.println(client.getKeyPair());
@@ -81,11 +81,11 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean result) {
             if (result) {
-                System.out.println("CONNECTION ESTABLISHED");
+//                System.out.println("CONNECTION ESTABLISHED");
                 updateView.append("CONNECTION ESTABLISHED");
                 client.startReceiving();
             } else {
-                System.out.println("CONNECTION NOT MADE");
+//                System.out.println("CONNECTION NOT MADE");
                 updateView.append("CONNECTION NOT MADE");
             }
         }
