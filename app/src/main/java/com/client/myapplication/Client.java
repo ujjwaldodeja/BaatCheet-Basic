@@ -1,5 +1,9 @@
 package com.client.myapplication;
 
+import android.graphics.Bitmap;
+
+import com.client.myapplication.Activities.ChatActivity;
+import com.client.myapplication.Activities.StegChatActivity;
 import com.client.myapplication.Crypto.DiffieHellmanKeyExchange;
 import com.client.myapplication.Crypto.E2EE;
 
@@ -10,12 +14,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketException;
-import java.security.InvalidKeyException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.spec.InvalidKeySpecException;
-import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +26,7 @@ public class Client {
     Socket socket = null;
     BufferedWriter writer;
     String username;
-    String address = "192.168.1.167";
+    String address = "145.126.0.90";
     int port = 8080;
     private boolean loggedIn = false;
     private boolean already = false;
@@ -38,6 +37,7 @@ public class Client {
     private SecretKey serverSecretKey;
     private Map<String, String> userKeys = new HashMap<>();
     private Map<String, SecretKey> secretKeys = new HashMap<>();
+    private StegChatActivity stegActivity;
 
     private Client() {
 //        try {
@@ -59,6 +59,20 @@ public class Client {
     private void updateChatViewOnUiThread(String message) {
         if (chatActivity != null) {
             chatActivity.updateChatView(message);
+        }
+    }
+
+    public void setStegActivity(StegChatActivity stegActivity) {
+        this.stegActivity = stegActivity;
+    }
+    private void updateImageViewOnUiThread(Bitmap image) {
+        if (stegActivity != null) {       //just updates the received message view
+            stegActivity.updateImageView(image);
+        }
+    }
+    private void updateRecievedViewOnUiThread(String message) {
+        if (stegActivity != null) {       //just updates the received message view
+            stegActivity.updateReceivedView(message);
         }
     }
 
@@ -95,11 +109,12 @@ public class Client {
                         line = reader.readLine();
                         if (line != null) {
                             String[] command = line.split("~");
-
+                            System.out.println(line);
                             //cases for the received commands from the client
                             switch (command[0]) {
+
                                 case "REGISTERED":{
-                                    System.out.println(line);
+
                                     String serverPublicKeyBase64 = command[1];
 
                                     //generating a secret with the server
@@ -107,19 +122,16 @@ public class Client {
                                     System.out.println("Generated shared secret:" + serverSecretKey);
                                 }
                                 case "LOGGED_IN": {
-                                    System.out.println(line);
                                     loggedIn = true;
                                 }
                                 break;
                                 case "ALREADYLOGGEDIN": {
-                                    System.out.println(line);
                                     //Call for login again with a different username if already logged in
                                     already = true;
                                 }
                                 break;
 
                                 case "LIST": {
-                                    System.out.println(line);
                                     String[] users = line.split("~");
                                     for (int i = 1; i < users.length; i++) {
                                         String[] userDetail = users[i].split(",");
@@ -138,11 +150,20 @@ public class Client {
                                 break;
 
                                 case "TEXT": {
-                                    System.out.println(line);
                                     String[] params = line.split("~");
                                     System.out.println("\n" + E2EE.decrypt(params[2], secretKeys.get(params[1])));
-//                                    runOnUiThread(() -> updateChatView("Message from" + command[1] + command[command.length-1]));
                                     updateChatViewOnUiThread("Message from " + command[1] + " " + E2EE.decrypt(params[2], secretKeys.get(params[1])));
+                                }
+                                break;
+                                case "IMAGE": {
+                                      System.out.println(line);
+//                                    //process the image
+                                      updateImageViewOnUiThread(ImageUtils.reformImage(command[2].getBytes()));
+
+//                                    String[] params = line.split("~");
+//                                    System.out.println("\n" + E2EE.decrypt(params[2], secretKeys.get(params[1])));
+//                                    updateReceivedViewOnUiThread("Message from " + command[1] + " " + E2EE.decrypt(params[2], secretKeys.get(params[1])));
+//
                                 }
                                 break;
                                 default:
@@ -273,4 +294,6 @@ public class Client {
     public synchronized SecretKey getSharedSecret(String recipient){
         return secretKeys.get(recipient);
     }
+
+
 }

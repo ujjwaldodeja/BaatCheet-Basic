@@ -1,4 +1,4 @@
-package com.client.myapplication;
+package com.client.myapplication.Activities;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -10,7 +10,9 @@ import android.widget.EditText;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.client.myapplication.Client;
 import com.client.myapplication.Crypto.DiffieHellmanKeyExchange;
+import com.client.myapplication.R;
 
 import java.security.NoSuchAlgorithmException;
 

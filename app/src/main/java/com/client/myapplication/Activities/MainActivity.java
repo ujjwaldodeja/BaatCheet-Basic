@@ -1,4 +1,4 @@
-package com.client.myapplication;
+package com.client.myapplication.Activities;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -10,15 +10,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.w3c.dom.Text;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
-import java.net.SocketException;
+import com.client.myapplication.Client;
+import com.client.myapplication.R;
 
 public class MainActivity extends AppCompatActivity {
     private Client client;
@@ -48,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         new ConnectTask().execute();
         client.setChatActivity(new ChatActivity());
 //        updateView.append("");
+
         logInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,8 +50,9 @@ public class MainActivity extends AppCompatActivity {
                 String loginCommand = "LOGIN~" + username + "~" + password;
                 client.setName(username);
                 new SendCommandTask().execute(loginCommand);
+
                 if(client.isLoggedIn() || client.isAlready()) {
-                    Intent i = new Intent(MainActivity.this, ChatActivity.class);
+                    Intent i = new Intent(MainActivity.this, MenuActivity.class);
                     startActivity(i);
                 } else {
                     updateView.append("INVALID Credentials");
