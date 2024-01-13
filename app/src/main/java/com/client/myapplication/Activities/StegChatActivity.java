@@ -1,7 +1,11 @@
 package com.client.myapplication.Activities;
 
 
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Button;
@@ -13,9 +17,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.client.myapplication.Client;
-import com.client.myapplication.ImageUtils;
+import com.client.myapplication.Crypto.E2EE;
+import com.client.myapplication.Stego.ImageSteganography;
+import com.client.myapplication.Stego.ImageUtils;
 import com.client.myapplication.R;
 
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 
 import javax.crypto.SecretKey;
 
@@ -47,8 +58,10 @@ public class StegChatActivity extends AppCompatActivity {
         System.out.println("Instance created");
         client.setStegActivity(this);     // creates a steg activity for the current client
 //        updateChatView("LOGGED IN");
+
 //        new SendCommandTask().execute("LIST");
-        sendButton.setOnClickListener(view -> sendMessage());
+
+        sendButton.setOnClickListener(view -> sendMessage2());
         listButton.setOnClickListener(view -> new SendCommandTask().execute("LIST"));
     }
 
@@ -60,27 +73,57 @@ public class StegChatActivity extends AppCompatActivity {
 
         System.out.println("RK" + recipientKey);
 
-//        String encryptedMessage = "";
-//        if (!recipient.isEmpty() && !message.isEmpty()) {
+        String encryptedMessage = "";
+        if (!recipient.isEmpty() && !message.isEmpty()) {
+            try {
+                encryptedMessage = E2EE.encrypt(message, recipientKey);     // this needs to be hidden in an image
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            byte[] imageBytes = ImageUtils.getImageBytes(getApplicationContext(),"posture.png"); //getting the bytes of the original image
+            System.out.println("STEG_CHECK 1: bytes = " + Arrays.toString(imageBytes));
+//            System.out.println(); //print the bitmap of the image before encoding and after encoding the message
+
+            byte[] encodedImageBytes = ImageSteganography.hideMessage(imageBytes, encryptedMessage);
+            System.out.println("STEG_CHECK 2: bytes = " + Arrays.toString(encodedImageBytes));
+
+            new SendCommandTask().execute("SEND_IMAGE~" + recipient + "~" + client.getName() + "~" + encodedImageBytes);
+            System.out.println("IMAGE SENT");
+            messageEditText.getText().clear();
+            updateSentView(recipient + ": " + message);
+        }
+   }
+
+    public void sendMessage2() {
+        String recipient = recipientEditText.getText().toString();
+        String message = messageEditText.getText().toString();
+
+        SecretKey recipientKey = client.getSharedSecret(recipient);
+
+        System.out.println("RK" + recipientKey);
+
+        String encryptedMessage = "";
+        if (!recipient.isEmpty() && !message.isEmpty()) {
 //            try {
 //                encryptedMessage = E2EE.encrypt(message, recipientKey);     // this needs to be hidden in an image
 //            } catch (Exception e) {
 //                throw new RuntimeException(e);
 //            }
+            Bitmap bmp = getBitmapFromAsset("ad-hoc.jpeg");
+            System.out.println("BITMAP CHECK: " + bmp.toString());
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
+            byte[] array = bos.toByteArray();
 
-//            new SendCommandTask().execute("SEND_IMAGE~" + recipient + "~" + client.getName() + "~" + encryptedMessage);
-            //the encrypted message has to be replaced by a bytes of an image file which hides the message inside
-            byte[] image = ImageUtils.getImageBytes(getApplicationContext(),"posture.png");
-            System.out.println(image);
-            new SendCommandTask().execute("SEND_IMAGE~" + recipient + "~" + client.getName() + "~" + image);
+            System.out.println(Arrays.toString(array));
+            new SendCommandTask().execute("SEND_IMAGE~" + recipient + "~" + client.getName() + "~" + Arrays.toString(array));
             System.out.println("IMAGE SENT");
             messageEditText.getText().clear();
             updateSentView(recipient + ": " + message);
         }
-//    }
-//    public void updateChatView(String message) {
-//        lastReceived.append(message + "\n");
-//    }
+    }
+
 
     public void updateSentView(String message) {
         lastSent.append(message + "\n");
@@ -89,8 +132,24 @@ public class StegChatActivity extends AppCompatActivity {
         lastReceived.append(message + "\n");
     }
 
-    public void updateImageView(Bitmap image) {
-        imageView.setImageBitmap(image);
+    public void updateImageView(Uri image) {
+        if (image != null) {
+            imageView.setImageURI(image);
+        } else {
+            System.out.println("URI not found");
+        }
+//        imageView.setImageBitmap(image);
+    }
+    private Bitmap getBitmapFromAsset(String strName) {
+        AssetManager assetManager = getAssets();
+        InputStream istr = null;
+        try {
+            istr = assetManager.open(strName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Bitmap bitmap = BitmapFactory.decodeStream(istr);
+        return bitmap;
     }
 
     private class SendCommandTask extends AsyncTask<String, Void, Void> {

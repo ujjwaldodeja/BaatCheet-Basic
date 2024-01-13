@@ -1,11 +1,15 @@
 package com.client.myapplication;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 
 import com.client.myapplication.Activities.ChatActivity;
 import com.client.myapplication.Activities.StegChatActivity;
 import com.client.myapplication.Crypto.DiffieHellmanKeyExchange;
 import com.client.myapplication.Crypto.E2EE;
+import com.client.myapplication.Stego.ImageSteganography;
+import com.client.myapplication.Stego.ImageUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -15,6 +19,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.security.KeyPair;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +31,7 @@ public class Client {
     Socket socket = null;
     BufferedWriter writer;
     String username;
-    String address = "145.126.0.90";
+    String address = "192.168.1.167";
     int port = 8080;
     private boolean loggedIn = false;
     private boolean already = false;
@@ -65,12 +70,13 @@ public class Client {
     public void setStegActivity(StegChatActivity stegActivity) {
         this.stegActivity = stegActivity;
     }
-    private void updateImageViewOnUiThread(Bitmap image) {
+    private void updateImageViewOnUiThread(Uri image) {
+        System.out.println(image);
         if (stegActivity != null) {       //just updates the received message view
             stegActivity.updateImageView(image);
         }
     }
-    private void updateRecievedViewOnUiThread(String message) {
+    private void updateReceivedViewOnUiThread(String message) {
         if (stegActivity != null) {       //just updates the received message view
             stegActivity.updateReceivedView(message);
         }
@@ -157,13 +163,18 @@ public class Client {
                                 break;
                                 case "IMAGE": {
                                       System.out.println(line);
-//                                    //process the image
-                                      updateImageViewOnUiThread(ImageUtils.reformImage(command[2].getBytes()));
 
-//                                    String[] params = line.split("~");
-//                                    System.out.println("\n" + E2EE.decrypt(params[2], secretKeys.get(params[1])));
-//                                    updateReceivedViewOnUiThread("Message from " + command[1] + " " + E2EE.decrypt(params[2], secretKeys.get(params[1])));
-//
+                                      extractImage(command[2]);
+
+//                                      updateReceivedViewOnUiThread("Message from " + command[1] + " " + extractMessage(command[2].getBytes(), command[1]));
+
+                                      //uncomment when completed with implementation
+//                                      //save the new image and get the Uri, and display the result
+//                                      Uri uri = ImageUtils.writeImage(stegActivity.getApplicationContext(), command[2].getBytes());
+//                                      System.out.println(uri);
+//                                      System.out.println(ImageUtils.reformImage(command[2].getBytes()));    //print the bitmap of the received image
+//                                      updateImageViewOnUiThread(uri);       //displaying the image on the UI
+
                                 }
                                 break;
                                 default:
@@ -181,6 +192,40 @@ public class Client {
             }
         });
         thread.start();
+    }
+
+    public static byte[] resolveImageString(String img) {
+        // Remove brackets and spaces from the input string
+        String cleanImg = img.replaceAll("\\[|\\]|\\s", "");
+
+        // Split the string into individual numbers
+        String[] imgArray = cleanImg.split(",");
+
+        // Create a byte array from the string numbers
+        byte[] byteArray = new byte[imgArray.length];
+        for (int i = 0; i < imgArray.length; i++) {
+            byteArray[i] = Byte.parseByte(imgArray[i].trim());
+        }
+        return byteArray;
+    }
+    private void extractImage(String imageBytes) {
+        byte[] bytes = resolveImageString(imageBytes);
+        Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0 , bytes.length);
+        System.out.println(bmp);
+    }
+
+    private String extractMessage(byte[] encodedImage, String sender) {
+        String encryptedMessage = ImageSteganography.extractMessage(encodedImage); //extracting the encrypted message from encoded Image
+        System.out.println("STEG_CHECK 3: found hidden message" + encryptedMessage);
+
+        String decMessage = null;
+        try {
+            decMessage = E2EE.decrypt(encryptedMessage, secretKeys.get(sender));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("STEG_CHECK 4: decrypted message" + decMessage);
+        return decMessage;
     }
 
     public void sendCommand(String command) {
