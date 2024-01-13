@@ -134,7 +134,9 @@ public class StegChatActivity extends AppCompatActivity {
 
     public void updateImageView(Uri image) {
         if (image != null) {
-            imageView.setImageURI(image);
+            runOnUiThread(() -> {
+                imageView.setImageURI(image);
+            });
         } else {
             System.out.println("URI not found");
         }

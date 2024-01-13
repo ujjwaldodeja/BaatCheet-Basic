@@ -56,10 +56,6 @@ public class ImageUtils {
 
             fileOutputStream.flush();
             fileOutputStream.close();
-
-            // Return the Uri
-//            File file = context.getFileStreamPath(fileName);
-//            return FileProvider.getUriForFile(context, "com.client.myapplication.fileprovider", file); //to be configured
             return Uri.fromFile(file);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);

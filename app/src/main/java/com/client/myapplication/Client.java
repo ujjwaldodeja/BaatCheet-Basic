@@ -168,12 +168,11 @@ public class Client {
 
 //                                      updateReceivedViewOnUiThread("Message from " + command[1] + " " + extractMessage(command[2].getBytes(), command[1]));
 
-                                      //uncomment when completed with implementation
-//                                      //save the new image and get the Uri, and display the result
-//                                      Uri uri = ImageUtils.writeImage(stegActivity.getApplicationContext(), command[2].getBytes());
-//                                      System.out.println(uri);
-//                                      System.out.println(ImageUtils.reformImage(command[2].getBytes()));    //print the bitmap of the received image
-//                                      updateImageViewOnUiThread(uri);       //displaying the image on the UI
+                                      //save the new image and get the Uri, and display the result
+                                      Uri uri = ImageUtils.writeImage(stegActivity.getApplicationContext(), resolveImageString(command[2]));
+                                      System.out.println(uri);
+                                      System.out.println(ImageUtils.reformImage(command[2].getBytes()));    //print the bitmap of the received image
+                                      updateImageViewOnUiThread(uri);       //displaying the image on the UI
 
                                 }
                                 break;
@@ -208,6 +207,7 @@ public class Client {
         }
         return byteArray;
     }
+
     private void extractImage(String imageBytes) {
         byte[] bytes = resolveImageString(imageBytes);
         Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0 , bytes.length);
