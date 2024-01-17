@@ -12,7 +12,6 @@ public class ImageSteganography {
         Bitmap originalImage = BitmapFactory.decodeByteArray(originalImageBytes, 0, originalImageBytes.length);
         Bitmap encodedImage = encodeMessage(originalImage, message); //actually tries to encode something
         ByteBuffer buffer = ByteBuffer.allocate(encodedImage.getByteCount());
-
         encodedImage.copyPixelsToBuffer(buffer);
         return buffer.array();
     }

@@ -61,7 +61,7 @@ public class StegChatActivity extends AppCompatActivity {
 
 //        new SendCommandTask().execute("LIST");
 
-        sendButton.setOnClickListener(view -> sendMessage2());
+        sendButton.setOnClickListener(view -> sendMessage());
         listButton.setOnClickListener(view -> new SendCommandTask().execute("LIST"));
     }
 
@@ -70,7 +70,6 @@ public class StegChatActivity extends AppCompatActivity {
         String message = messageEditText.getText().toString();
 
         SecretKey recipientKey = client.getSharedSecret(recipient);
-
         System.out.println("RK" + recipientKey);
 
         String encryptedMessage = "";
@@ -80,15 +79,28 @@ public class StegChatActivity extends AppCompatActivity {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+            Bitmap bmp = getBitmapFromAsset("posture.png");
 
-            byte[] imageBytes = ImageUtils.getImageBytes(getApplicationContext(),"posture.png"); //getting the bytes of the original image
-            System.out.println("STEG_CHECK 1: bytes = " + Arrays.toString(imageBytes));
-//            System.out.println(); //print the bitmap of the image before encoding and after encoding the message
+            Bitmap coverCopy = ImageUtils.createCopy(bmp);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream(); //creating a stream for the image
+            coverCopy.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos); //compressing the image before putting in the message
+            byte[] array = bos.toByteArray();       //array of original image
 
-            byte[] encodedImageBytes = ImageSteganography.hideMessage(imageBytes, encryptedMessage);
-            System.out.println("STEG_CHECK 2: bytes = " + Arrays.toString(encodedImageBytes));
 
-            new SendCommandTask().execute("SEND_IMAGE~" + recipient + "~" + client.getName() + "~" + encodedImageBytes);
+            System.out.println("STEG_CHECK 1: bytes = " + Arrays.toString(array)); //print the bytes before hiding the message
+            System.out.println(message + "of length " + message.length() );
+            System.out.println(encryptedMessage + "of length " + encryptedMessage.length());
+
+            Bitmap encodedImage = ImageSteganography.encodeMessage(coverCopy, encryptedMessage);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            encodedImage.compress(Bitmap.CompressFormat.PNG, 0, out);
+            byte[] encodedImageBytes = out.toByteArray();//to be hiding encrypted message later
+
+            System.out.println("STEG_CHECK 2: bytes = " + Arrays.toString(encodedImageBytes)); //print the bytes after hiding the message
+
+            updateImageView(encodedImage); //this is the newly formed image
+
+            new SendCommandTask().execute("SEND_IMAGE~" + recipient + "~" + client.getName() + "~" + Arrays.toString(encodedImageBytes) + "~" + encryptedMessage.length());
             System.out.println("IMAGE SENT");
             messageEditText.getText().clear();
             updateSentView(recipient + ": " + message);
@@ -103,19 +115,10 @@ public class StegChatActivity extends AppCompatActivity {
 
         System.out.println("RK" + recipientKey);
 
-        String encryptedMessage = "";
         if (!recipient.isEmpty() && !message.isEmpty()) {
-            try {
-                encryptedMessage = E2EE.encrypt(message, recipientKey);     // this needs to be hidden in an image
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+
             Bitmap bmp = getBitmapFromAsset("posture.png");
             System.out.println("BITMAP CHECK: " + bmp.toString());
-//            ByteArrayOutputStream bos = new ByteArrayOutputStream(); //creating a stream for the image
-//            bmp.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos); //compressing the image before putting in the message
-//            byte[] array = bos.toByteArray();       //array of original image
-//
 
             Bitmap coverCopy = ImageUtils.createCopy(bmp);
             ByteArrayOutputStream bos = new ByteArrayOutputStream(); //creating a stream for the image
@@ -125,7 +128,6 @@ public class StegChatActivity extends AppCompatActivity {
 
             System.out.println("STEG_CHECK 1: bytes = " + Arrays.toString(array)); //print the bytes before hiding the message
             System.out.println(message + "of length " + message.length() );
-            System.out.println(encryptedMessage + "of length " + encryptedMessage.length() );
 
             Bitmap encodedImage = ImageSteganography.encodeMessage(coverCopy, message);
             ByteArrayOutputStream out = new ByteArrayOutputStream();

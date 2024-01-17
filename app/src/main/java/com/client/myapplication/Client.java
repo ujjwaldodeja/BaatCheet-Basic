@@ -171,14 +171,13 @@ public class Client {
                                       System.out.println(line);
 
                                       Bitmap stegoReceived = extractImage(command[2]);
+                                      String encryptedMessage = extractMessage(stegoReceived, Integer.parseInt(command[3]));
                                       updateImageViewOnUiThread(stegoReceived);
-                                      updateReceivedViewOnUiThread(command[1] + " " + extractMessage(stegoReceived, command[1], Integer.parseInt(command[3])));
-//
-//                                      //save the new image and get the Uri, and display the result
-//                                      Uri uri = ImageUtils.writeImage(stegActivity.getApplicationContext(), resolveImageString(command[2]));
-//                                      System.out.println(uri);
-//                                      System.out.println(ImageUtils.reformImage(command[2].getBytes()));    //print the bitmap of the received image
-//                                      updateImageViewOnUiThread(uri);       //displaying the image on the UI
+                                      String sender = command[1];
+                                      String decMessage = null;
+                                      decMessage = E2EE.decrypt(encryptedMessage, secretKeys.get(sender));
+                                      System.out.println("STEG_CHECK 4: decrypted message" + decMessage);
+                                      updateReceivedViewOnUiThread(command[1] + ":" + decMessage);
 
                                 }
                                 break;
@@ -219,18 +218,9 @@ public class Client {
         return BitmapFactory.decodeByteArray(bytes, 0 , bytes.length);
     }
 
-    private String extractMessage(Bitmap imageMap, String sender, int messageLength) {
+    private String extractMessage(Bitmap imageMap, int messageLength) {
         String encryptedMessage = ImageSteganography.decodeMessage(imageMap, messageLength); //extracting the encrypted message from encoded Image
         System.out.println("STEG_CHECK 3: found hidden message " + encryptedMessage);
-
-//        String decMessage = null;
-//        try {
-//            decMessage = E2EE.decrypt(encryptedMessage, secretKeys.get(sender));
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//        System.out.println("STEG_CHECK 4: decrypted message" + decMessage);
-//        return decMessage;
         return encryptedMessage;
     }
 
