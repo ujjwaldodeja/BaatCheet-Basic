@@ -76,6 +76,12 @@ public class Client {
             stegActivity.updateImageView(image);
         }
     }
+    private void updateImageViewOnUiThread(Bitmap image) {
+        System.out.println(image);
+        if (stegActivity != null) {       //just updates the received message view
+            stegActivity.updateImageView(image);
+        }
+    }
     private void updateReceivedViewOnUiThread(String message) {
         if (stegActivity != null) {       //just updates the received message view
             stegActivity.updateReceivedView(message);
@@ -164,15 +170,15 @@ public class Client {
                                 case "IMAGE": {
                                       System.out.println(line);
 
-                                      extractImage(command[2]);
-
-//                                      updateReceivedViewOnUiThread("Message from " + command[1] + " " + extractMessage(command[2].getBytes(), command[1]));
-
-                                      //save the new image and get the Uri, and display the result
-                                      Uri uri = ImageUtils.writeImage(stegActivity.getApplicationContext(), resolveImageString(command[2]));
-                                      System.out.println(uri);
-                                      System.out.println(ImageUtils.reformImage(command[2].getBytes()));    //print the bitmap of the received image
-                                      updateImageViewOnUiThread(uri);       //displaying the image on the UI
+                                      Bitmap stegoReceived = extractImage(command[2]);
+                                      updateImageViewOnUiThread(stegoReceived);
+                                      updateReceivedViewOnUiThread(command[1] + " " + extractMessage(stegoReceived, command[1], Integer.parseInt(command[3])));
+//
+//                                      //save the new image and get the Uri, and display the result
+//                                      Uri uri = ImageUtils.writeImage(stegActivity.getApplicationContext(), resolveImageString(command[2]));
+//                                      System.out.println(uri);
+//                                      System.out.println(ImageUtils.reformImage(command[2].getBytes()));    //print the bitmap of the received image
+//                                      updateImageViewOnUiThread(uri);       //displaying the image on the UI
 
                                 }
                                 break;
@@ -208,24 +214,24 @@ public class Client {
         return byteArray;
     }
 
-    private void extractImage(String imageBytes) {
+    private Bitmap extractImage(String imageBytes) {
         byte[] bytes = resolveImageString(imageBytes);
-        Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0 , bytes.length);
-        System.out.println(bmp);
+        return BitmapFactory.decodeByteArray(bytes, 0 , bytes.length);
     }
 
-    private String extractMessage(byte[] encodedImage, String sender) {
-        String encryptedMessage = ImageSteganography.extractMessage(encodedImage); //extracting the encrypted message from encoded Image
-        System.out.println("STEG_CHECK 3: found hidden message" + encryptedMessage);
+    private String extractMessage(Bitmap imageMap, String sender, int messageLength) {
+        String encryptedMessage = ImageSteganography.decodeMessage(imageMap, messageLength); //extracting the encrypted message from encoded Image
+        System.out.println("STEG_CHECK 3: found hidden message " + encryptedMessage);
 
-        String decMessage = null;
-        try {
-            decMessage = E2EE.decrypt(encryptedMessage, secretKeys.get(sender));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("STEG_CHECK 4: decrypted message" + decMessage);
-        return decMessage;
+//        String decMessage = null;
+//        try {
+//            decMessage = E2EE.decrypt(encryptedMessage, secretKeys.get(sender));
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//        System.out.println("STEG_CHECK 4: decrypted message" + decMessage);
+//        return decMessage;
+        return encryptedMessage;
     }
 
     public void sendCommand(String command) {

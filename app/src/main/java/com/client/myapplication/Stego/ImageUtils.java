@@ -64,31 +64,9 @@ public class ImageUtils {
         }
     }
 
-//    public static void main(String[] args) {
-//        String PATH = "/Users/ftw/Desktop/BaatCheet/Chat Application/Client/app/src/main/assets/";
-//        byte[] imageBytes = getBytes(PATH + "posture.png");
-//        System.out.println(imageBytes);
-//        Bitmap imageMap = reformImage(imageBytes);
-//        System.out.println(imageMap);
-//
-//        try {
-//            FileOutputStream file = new FileOutputStream(new File(PATH + "test.png"));
-//            file.write(imageBytes);
-//            file.flush();
-//        } catch (FileNotFoundException e) {
-//            throw new RuntimeException(e);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    public static Bitmap createCopy(Bitmap bmp) {
+        return bmp.copy(bmp.getConfig(),bmp.isMutable());
+    }
+
 
 }
-
-//        File imageFile = new File(imageName);
-//        byte[] imageData = new byte[0];
-//        try {
-//            imageData = Files.readAllBytes(imageFile.toPath());
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        return imageData;

@@ -9,23 +9,20 @@ import java.util.BitSet;
 public class ImageSteganography {
 
     // Hide message in image using LSB substitution
-    public static byte[] hideMessage(byte[] originalImageBytes, String message) {
-        Bitmap originalImage = null;
-        try {
-            originalImage = BitmapFactory.decodeByteArray(originalImageBytes, 0, originalImageBytes.length);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Bitmap encodedImage = encodeMessage(originalImage, message);
-
+    public static byte[] hideMessage(byte[] originalImageBytes, String message) {   //can also send the bitmap directly instead of recreation
+        Bitmap originalImage = BitmapFactory.decodeByteArray(originalImageBytes, 0, originalImageBytes.length);
+        Bitmap encodedImage = encodeMessage(originalImage, message); //actually tries to encode something
         ByteBuffer buffer = ByteBuffer.allocate(encodedImage.getByteCount());
+
         encodedImage.copyPixelsToBuffer(buffer);
         return buffer.array();
     }
 
     // Encode message in LSB of an image
-    private static Bitmap encodeMessage(Bitmap coverImage, String message) {
+    public static Bitmap encodeMessage(Bitmap coverImage, String message) {
         String binaryMessage = stringToBinary(message);
+
+        System.out.println("BINARY_CHECK:1" + message + " to " + binaryMessage);
         int messageIndex = 0;
 
         Bitmap encodedImage = Bitmap.createBitmap(coverImage.getWidth(), coverImage.getHeight(), coverImage.getConfig());
@@ -34,28 +31,22 @@ public class ImageSteganography {
             for (int j = 0; j < coverImage.getHeight(); j++) {
                 int pixel = coverImage.getPixel(i, j);
 
-                int alpha = Color.alpha(pixel);
-                int red = Color.red(pixel);
-                int green = Color.green(pixel);
-                int blue = Color.blue(pixel);
-
-                // Modify the least significant bit of each color channel
-                red = (red & 0xFE) | (binaryMessage.charAt(messageIndex++) - '0');
-                green = (green & 0xFE) | (binaryMessage.charAt(messageIndex++) - '0');
-                blue = (blue & 0xFE) | (binaryMessage.charAt(messageIndex++) - '0');
-
-                int modifiedPixel = Color.argb(alpha, red, green, blue);
-                encodedImage.setPixel(i, j, modifiedPixel);
-
-                if (messageIndex >= binaryMessage.length()) {
-                    break;
+                // Modify the least significant bit of each color channel for a specific pattern of pixels
+                if (messageIndex < binaryMessage.length()-2) {
+                    int alpha = Color.alpha(pixel);
+                    int red = Color.red(pixel);
+                    int green = Color.green(pixel);
+                    int blue = Color.blue(pixel);
+                    red = (red & 0xFE) | (binaryMessage.charAt(messageIndex++) - '0');
+//                    green = (green & 0xFE) | (binaryMessage.charAt(messageIndex++) - '0');
+//                    blue = (blue & 0xFE) | (binaryMessage.charAt(messageIndex++) - '0');
+                    int modifiedPixel = Color.argb(alpha, red, green, blue);
+                    encodedImage.setPixel(i, j, modifiedPixel);
+                } else {
+                    encodedImage.setPixel(i,j,pixel);
                 }
             }
-            if (messageIndex >= binaryMessage.length()) {
-                break;
-            }
         }
-
         return encodedImage;
     }
 
@@ -67,34 +58,30 @@ public class ImageSteganography {
         }
         return binaryMessage.toString();
     }
-    // Extract hidden message from image bytes
-    public static String extractMessage(byte[] encodedImageBytes) {
-        Bitmap encodedImage = BitmapFactory.decodeByteArray(encodedImageBytes, 0, encodedImageBytes.length);
-
-        System.out.println(encodedImage);
-
-        return decodeMessage(encodedImage);
-    }
 
     // Decode hidden message from LSB of an image
-    private static String decodeMessage(Bitmap encodedImage) {
+    public static String decodeMessage(Bitmap encodedImage, int messageLength) {
         if (encodedImage != null) {
             StringBuilder binaryMessage = new StringBuilder();
-
+            String message = "";
             for (int i = 0; i < encodedImage.getWidth(); i++) {
                 for (int j = 0; j < encodedImage.getHeight(); j++) {
-                    int pixel = encodedImage.getPixel(i, j);
-
-                    int red = Color.red(pixel) & 1;
-                    int green = Color.green(pixel) & 1;
-                    int blue = Color.blue(pixel) & 1;
-
-                    binaryMessage.append(red);
-                    binaryMessage.append(green);
-                    binaryMessage.append(blue);
+                    if (message.length() < messageLength) {
+                        int pixel = encodedImage.getPixel(i, j);
+                        int red = Color.red(pixel) & 1;
+//                        int green = Color.green(pixel) & 1;
+//                        int blue = Color.blue(pixel) & 1;
+                        binaryMessage.append(red);
+//                        binaryMessage.append(green);
+//                        binaryMessage.append(blue);
+                    }
+                    if (binaryMessage.length() == 8) {
+                        message = message + binaryToMessage(String.valueOf(binaryMessage));
+                        binaryMessage = new StringBuilder();
+                    }
                 }
             }
-            return binaryToMessage(binaryMessage.toString());
+            return message;
         }
         System.out.println("BITMAP IS NOT GENERATED PROPERLY");
         return null;
@@ -109,14 +96,6 @@ public class ImageSteganography {
             int charCode = Integer.parseInt(byteStr, 2);
             message.append((char) charCode);
         }
-
         return message.toString();
     }
-//    public static void main(String[] args) {
-//        byte[] imageBytes = ImageUtils.getImageBytes("/Users/ftw/Desktop/images/posture.png");
-//        System.out.print(imageBytes);
-//        byte[] encodedImage = hideMessage(imageBytes, "Hello");
-//        System.out.print(encodedImage);
-//        System.out.print(extractMessage(encodedImage));
-//    }
 }
