@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import java.nio.ByteBuffer;
-import java.util.BitSet;
 
 public class ImageSteganography {
 
@@ -32,7 +31,7 @@ public class ImageSteganography {
                 int pixel = coverImage.getPixel(i, j);
 
                 // Modify the least significant bit of each color channel for a specific pattern of pixels
-                if (messageIndex < binaryMessage.length()-2) {
+                if (messageIndex < binaryMessage.length()) {
                     int alpha = Color.alpha(pixel);
                     int red = Color.red(pixel);
                     int green = Color.green(pixel);
