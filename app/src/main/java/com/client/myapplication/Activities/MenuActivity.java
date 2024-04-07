@@ -20,6 +20,8 @@ public class MenuActivity extends AppCompatActivity {
         setContentView(R.layout.acitivity_menu);
         stegChat = findViewById(R.id.stegChatButton);
         chat = findViewById(R.id.chatButton);
+
+
         stegChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -27,6 +29,7 @@ public class MenuActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
         chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

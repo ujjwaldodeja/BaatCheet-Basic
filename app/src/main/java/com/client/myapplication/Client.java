@@ -19,7 +19,9 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.security.KeyPair;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,11 +29,10 @@ import javax.crypto.SecretKey;
 
 public class Client {
     private static Client instance;
-    BufferedReader reader;
     Socket socket = null;
     BufferedWriter writer;
     String username;
-    String address = "192.168.1.167";
+    String address = "192.168.31.167";
     int port = 8080;
     private boolean loggedIn = false;
     private boolean already = false;
@@ -85,6 +86,11 @@ public class Client {
     private void updateReceivedViewOnUiThread(String message) {
         if (stegActivity != null) {       //just updates the received message view
             stegActivity.updateReceivedView(message);
+        }
+    }
+    private void updateEncryptedViewOnUiThread(String message) {
+        if (stegActivity != null) {       //just updates the received message view
+            stegActivity.updateEncryptedView(message);
         }
     }
 
@@ -160,23 +166,29 @@ public class Client {
                                     System.out.println("SECRET" + secretKeys);
                                 }
                                 break;
-
+                                case "NEW_USER" : {
+                                    sendCommand("LIST");
+                                }
+                                break;
                                 case "TEXT": {
                                     String[] params = line.split("~");
-                                    System.out.println("\n" + E2EE.decrypt(params[2], secretKeys.get(params[1])));
-                                    updateChatViewOnUiThread("Message from " + command[1] + " " + E2EE.decrypt(params[2], secretKeys.get(params[1])));
+                                    String decMessage = E2EE.decrypt(params[2], secretKeys.get(params[1]));
+                                    System.out.println("\n" + decMessage + " at " + printTime());
+                                    updateChatViewOnUiThread("Message from " + command[1] + " " + decMessage);
                                 }
                                 break;
                                 case "IMAGE": {
                                       System.out.println(line);
 
                                       Bitmap stegoReceived = extractImage(command[2]);
-                                      String encryptedMessage = extractMessage(stegoReceived, Integer.parseInt(command[3]));
                                       updateImageViewOnUiThread(stegoReceived);
+
+                                      String encryptedMessage = extractMessage(stegoReceived, Integer.parseInt(command[3]));
+                                      updateEncryptedViewOnUiThread(encryptedMessage);
                                       String sender = command[1];
                                       String decMessage = null;
                                       decMessage = E2EE.decrypt(encryptedMessage, secretKeys.get(sender));
-                                      System.out.println("STEG_CHECK 4: decrypted message" + decMessage);
+                                      System.out.println("STEG_CHECK 4: decrypted message" + decMessage + " at " + printTime());
                                       updateReceivedViewOnUiThread(command[1] + ":" + decMessage);
 
                                 }
@@ -213,12 +225,26 @@ public class Client {
         return byteArray;
     }
 
+    public String printTime() {
+        // Get the current time
+        long currentTimeMillis = System.currentTimeMillis();
+        // Create a Date object using the current time
+        Date currentDate = new Date(currentTimeMillis);
+        // Create a SimpleDateFormat object to format the time
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
+        // Format the current time
+        String formattedTime = sdf.format(currentDate);
+
+        // Print the formatted time
+        return formattedTime;
+    }
+
     private Bitmap extractImage(String imageBytes) {
         byte[] bytes = resolveImageString(imageBytes);
         return BitmapFactory.decodeByteArray(bytes, 0 , bytes.length);
     }
 
-    private String extractMessage(Bitmap imageMap, int messageLength) {
+    public String extractMessage(Bitmap imageMap, int messageLength) {
         String encryptedMessage = ImageSteganography.decodeMessage(imageMap, messageLength); //extracting the encrypted message from encoded Image
         System.out.println("STEG_CHECK 3: found hidden message " + encryptedMessage);
         return encryptedMessage;
@@ -251,14 +277,14 @@ public class Client {
      */
     //@ requires clientDescription.equals(null);
     //@ ensures isHelloReceived() && clientDescription.equals(description);
-    public void initiateHello(String clientDescription) throws IOException {
-        sendCommand("HELLO~" + clientDescription);
-        while (true) {
-            if (isHelloReceived()) {
-                break;
-            }
-        }
-    }
+//    public void initiateHello(String clientDescription) throws IOException {
+//        sendCommand("HELLO~" + clientDescription);
+//        while (true) {
+//            if (isHelloReceived()) {
+//                break;
+//            }
+//        }
+//    }
 
     /**
      * Initiates the login sequence by sending a login message with the client's name,
@@ -268,23 +294,23 @@ public class Client {
      */
     //@ requires user.equals(null);
     //@ ensures isLoggedIn() && isAlready() && name.equals(user);
-    public void initiateLogin(String username, String password) throws IOException {
-        already = false;
-        loggedIn = false;
-//        setName(username);
-        sendCommand("LOGIN~" + username + "~" +  password);
-        while (true) {
-            if (isLoggedIn()) {
-                break;          //if already logged in, login again
-            }
-            if (isAlready()) {
-                break;
-            }
-        }
-    }
-    public synchronized boolean isHelloReceived() {
-        return helloReceived;
-    }
+//    public void initiateLogin(String username, String password) throws IOException {
+//        already = false;
+//        loggedIn = false;
+////        setName(username);
+//        sendCommand("LOGIN~" + username + "~" +  password);
+//        while (true) {
+//            if (isLoggedIn()) {
+//                break;          //if already logged in, login again
+//            }
+//            if (isAlready()) {
+//                break;
+//            }
+//        }
+//    }
+//    public synchronized boolean isHelloReceived() {
+//        return helloReceived;
+//    }
 
     /**
      * Returns true if the loggedIn boolean is true, false if it is false.

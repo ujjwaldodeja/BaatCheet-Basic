@@ -40,7 +40,8 @@
             />
         <activity android:name=".Activities.SignUpActivity"
             />
-
+        <activity android:name=".Activities.UserListActivity"/>
+        <activity android:name=".Activities.UserChatActivity"/>
     </application>
 
 </manifest>

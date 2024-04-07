@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         client = Client.getInstance();
         System.out.println(client.getKeyPair());
 //        client.logout(); //should be logged out when going back form chatActivity ---not very import for nwo
+
         new ConnectTask().execute();
         client.setChatActivity(new ChatActivity());
 //        updateView.append("");
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
                 new SendCommandTask().execute(loginCommand);
 
                 if(client.isLoggedIn() || client.isAlready()) {
-                    Intent i = new Intent(MainActivity.this, MenuActivity.class);
+                    Intent i = new Intent(MainActivity.this, UserListActivity.class); //switch back to MenuActivity later
                     startActivity(i);
                 } else {
                     updateView.append("INVALID Credentials");

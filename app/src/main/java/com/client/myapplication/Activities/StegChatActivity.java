@@ -8,6 +8,7 @@ import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -26,7 +27,10 @@ import com.client.myapplication.R;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 import javax.crypto.SecretKey;
 
@@ -35,11 +39,13 @@ public class StegChatActivity extends AppCompatActivity {
 //    private TextView chatTextView;
     private TextView lastSent;
     private TextView lastReceived;
+    private TextView encryptedView;
     private ImageView imageView;
     private EditText messageEditText;
     private EditText recipientEditText;
     private Button sendButton;
     private Button listButton;
+    private Button extractButton;
 
 
     @Override
@@ -49,8 +55,10 @@ public class StegChatActivity extends AppCompatActivity {
 //        chatTextView = findViewById(R.id.chatTextView);
         messageEditText = findViewById(R.id.messageEditText);
         recipientEditText = findViewById(R.id.recipientEditText);
+        encryptedView = findViewById(R.id.encrypted);
         sendButton = findViewById(R.id.sendButton);
         listButton = findViewById(R.id.listButton);
+        extractButton = findViewById(R.id.extract);
         lastSent = findViewById(R.id.lastSent);
         lastReceived = findViewById(R.id.lastReceived);
         imageView = findViewById(R.id.imageView);
@@ -62,7 +70,16 @@ public class StegChatActivity extends AppCompatActivity {
 //        new SendCommandTask().execute("LIST");
 
         sendButton.setOnClickListener(view -> sendMessage());
+
+
         listButton.setOnClickListener(view -> new SendCommandTask().execute("LIST"));
+
+        extractButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     public void sendMessage() {
@@ -98,52 +115,29 @@ public class StegChatActivity extends AppCompatActivity {
 
             System.out.println("STEG_CHECK 2: bytes = " + Arrays.toString(encodedImageBytes)); //print the bytes after hiding the message
 
-            updateImageView(encodedImage); //this is the newly formed image
+//            updateImageView(encodedImage); //this is the newly formed image
 
             new SendCommandTask().execute("SEND_IMAGE~" + recipient + "~" + client.getName() + "~" + Arrays.toString(encodedImageBytes) + "~" + encryptedMessage.length());
-            System.out.println("IMAGE SENT");
+            System.out.println("IMAGE SENT at " + printTime());
             messageEditText.getText().clear();
             updateSentView(recipient + ": " + message);
         }
    }
 
-    public void sendMessage2() {
-        String recipient = recipientEditText.getText().toString();
-        String message = messageEditText.getText().toString();
+    public String printTime() {
+        // Get the current time
+        long currentTimeMillis = System.currentTimeMillis();
+        // Create a Date object using the current time
+        Date currentDate = new Date(currentTimeMillis);
+        // Create a SimpleDateFormat object to format the time
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
+        // Format the current time
+        String formattedTime = sdf.format(currentDate);
 
-        SecretKey recipientKey = client.getSharedSecret(recipient);
-
-        System.out.println("RK" + recipientKey);
-
-        if (!recipient.isEmpty() && !message.isEmpty()) {
-
-            Bitmap bmp = getBitmapFromAsset("posture.png");
-            System.out.println("BITMAP CHECK: " + bmp.toString());
-
-            Bitmap coverCopy = ImageUtils.createCopy(bmp);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream(); //creating a stream for the image
-            coverCopy.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos); //compressing the image before putting in the message
-            byte[] array = bos.toByteArray();       //array of original image
-
-
-            System.out.println("STEG_CHECK 1: bytes = " + Arrays.toString(array)); //print the bytes before hiding the message
-            System.out.println(message + "of length " + message.length() );
-
-            Bitmap encodedImage = ImageSteganography.encodeMessage(coverCopy, message);
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            encodedImage.compress(Bitmap.CompressFormat.PNG, 0, out);
-            byte[] encodedImageBytes = out.toByteArray();//to be hiding encrypted message later
-
-            System.out.println("STEG_CHECK 2: bytes = " + Arrays.toString(encodedImageBytes)); //print the bytes after hiding the message
-
-            updateImageView(encodedImage); //this is the newly formed image
-
-            new SendCommandTask().execute("SEND_IMAGE~" + recipient + "~" + client.getName() + "~" + Arrays.toString(encodedImageBytes) + "~" + message.length()); //has to be replaced by encryptedMessageLength
-            System.out.println("IMAGE SENT");
-            messageEditText.getText().clear();
-            updateSentView(recipient + ": " + message);
-        }
+        // Print the formatted time
+        return formattedTime;
     }
+
 
 
     public void updateSentView(String message) {
@@ -151,6 +145,10 @@ public class StegChatActivity extends AppCompatActivity {
     }
     public void updateReceivedView(String message) {
         lastReceived.append(message + "\n");
+    }
+
+    public void updateEncryptedView(String message) {
+        encryptedView.append(message + "\n");
     }
 
     public void updateImageView(Uri image) {
@@ -192,4 +190,5 @@ public class StegChatActivity extends AppCompatActivity {
             return null;
         }
     }
+
 }
