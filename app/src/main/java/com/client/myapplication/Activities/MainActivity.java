@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if(client.isLoggedIn() || client.isAlready()) {
                     Intent i = new Intent(MainActivity.this, UserListActivity.class); //switch back to MenuActivity later
+                    i.putExtra("users", client.getUsers());
                     startActivity(i);
                 } else {
                     updateView.append("INVALID Credentials");

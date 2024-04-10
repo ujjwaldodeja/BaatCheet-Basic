@@ -32,11 +32,11 @@ public class Client {
     Socket socket = null;
     BufferedWriter writer;
     String username;
-    String address = "192.168.31.167";
+    String address = "127.0.0.1";
     int port = 8080;
     private boolean loggedIn = false;
     private boolean already = false;
-    private boolean helloReceived = false;
+//    private boolean helloReceived = false;
 
     private KeyPair keyPair;
 
@@ -190,7 +190,6 @@ public class Client {
                                       decMessage = E2EE.decrypt(encryptedMessage, secretKeys.get(sender));
                                       System.out.println("STEG_CHECK 4: decrypted message" + decMessage + " at " + printTime());
                                       updateReceivedViewOnUiThread(command[1] + ":" + decMessage);
-
                                 }
                                 break;
                                 default:
@@ -330,6 +329,9 @@ public class Client {
         return already;
     }
 
+    public String[] getUsers(){
+        return userKeys.keySet().toArray(new String[0]);
+    }
     //@ ensures \result.equals(name);
     public String getName() {
         return username;

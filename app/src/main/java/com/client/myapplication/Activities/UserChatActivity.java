@@ -44,7 +44,6 @@ public class UserChatActivity extends AppCompatActivity {
         sendButton = findViewById(R.id.sendButton);
         client = Client.getInstance();
         System.out.println("Instance created");
-
         // Add more messages as needed...
 
 //        client.setChatActivity(this);
