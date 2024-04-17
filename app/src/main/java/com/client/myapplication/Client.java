@@ -6,6 +6,8 @@ import android.net.Uri;
 
 import com.client.myapplication.Activities.ChatActivity;
 import com.client.myapplication.Activities.StegChatActivity;
+import com.client.myapplication.Activities.UserChatActivity;
+import com.client.myapplication.Activities.UserListActivity;
 import com.client.myapplication.Crypto.DiffieHellmanKeyExchange;
 import com.client.myapplication.Crypto.E2EE;
 import com.client.myapplication.Stego.ImageSteganography;
@@ -32,11 +34,10 @@ public class Client {
     Socket socket = null;
     BufferedWriter writer;
     String username;
-    String address = "127.0.0.1";
+    String address = "192.168.1.48";
     int port = 8080;
     private boolean loggedIn = false;
     private boolean already = false;
-//    private boolean helloReceived = false;
 
     private KeyPair keyPair;
 
@@ -44,7 +45,10 @@ public class Client {
     private Map<String, String> userKeys = new HashMap<>();
     private Map<String, SecretKey> secretKeys = new HashMap<>();
     private StegChatActivity stegActivity;
+    private ChatActivity chatActivity;
+    private UserListActivity userListActivity;
 
+    private Map<String, UserChatActivity> userActivities = new HashMap<>();
     private Client() {
 //        try {
 //            this.keyPair = DiffieHellmanKeyExchange.generateKeyPair();
@@ -55,11 +59,20 @@ public class Client {
         // Private constructor to enforce singleton pattern
     }
 
-    private ChatActivity chatActivity;
+
+
+    public void setUserListActivity(UserListActivity userListActivity) {
+        this.userListActivity = userListActivity;
+    }
+
 
 
     public void setChatActivity(ChatActivity chatActivity) {
         this.chatActivity = chatActivity;
+    }
+
+    public void addUserActivity(UserChatActivity userChatActivity){
+        userActivities.putIfAbsent(userChatActivity.getRecipient(), userChatActivity);
     }
 
     private void updateChatViewOnUiThread(String message) {
@@ -68,15 +81,16 @@ public class Client {
         }
     }
 
+
     public void setStegActivity(StegChatActivity stegActivity) {
         this.stegActivity = stegActivity;
     }
-    private void updateImageViewOnUiThread(Uri image) {
-        System.out.println(image);
-        if (stegActivity != null) {       //just updates the received message view
-            stegActivity.updateImageView(image);
-        }
-    }
+//    private void updateImageViewOnUiThread(Uri image) {
+//        System.out.println(image);
+//        if (stegActivity != null) {       //just updates the received message view
+//            stegActivity.updateImageView(image);
+//        }
+//    }
     private void updateImageViewOnUiThread(Bitmap image) {
         System.out.println(image);
         if (stegActivity != null) {       //just updates the received message view
@@ -160,6 +174,7 @@ public class Client {
                                         userKeys.putIfAbsent(userName, userPublicKeyBase64);
                                         SecretKey userSecret = DiffieHellmanKeyExchange.performKeyExchange(userPublicKeyBase64, getKeyPair());
                                         secretKeys.putIfAbsent(userName, userSecret);
+
                                         System.out.println(users[i] + "\n");
                                     }
                                     System.out.println(userKeys + "\n");
@@ -167,22 +182,30 @@ public class Client {
                                 }
                                 break;
                                 case "NEW_USER" : {
-                                    sendCommand("LIST");
+//                                    sendCommand("LIST");
+                                    String[] userDetails = command[1].split(",");
+                                    System.out.println(Arrays.toString(userDetails));
+                                    String username = userDetails[0];
+                                    String userPublicKeyBase64 = userDetails[1];
+                                    System.out.println(userPublicKeyBase64);
+                                    userKeys.putIfAbsent(username, userPublicKeyBase64);
+                                    SecretKey userSecret = DiffieHellmanKeyExchange.performKeyExchange(userPublicKeyBase64, getKeyPair());
+                                    secretKeys.putIfAbsent(username, userSecret);
+                                    sendUpdateToUserList(username);
                                 }
                                 break;
                                 case "TEXT": {
                                     String[] params = line.split("~");
                                     String decMessage = E2EE.decrypt(params[2], secretKeys.get(params[1]));
                                     System.out.println("\n" + decMessage + " at " + printTime());
-                                    updateChatViewOnUiThread("Message from " + command[1] + " " + decMessage);
+                                    updateUserChat(command[1], decMessage);
+//                                    updateChatViewOnUiThread("Message from " + command[1] + " " + decMessage);
                                 }
                                 break;
                                 case "IMAGE": {
                                       System.out.println(line);
-
                                       Bitmap stegoReceived = extractImage(command[2]);
                                       updateImageViewOnUiThread(stegoReceived);
-
                                       String encryptedMessage = extractMessage(stegoReceived, Integer.parseInt(command[3]));
                                       updateEncryptedViewOnUiThread(encryptedMessage);
                                       String sender = command[1];
@@ -207,6 +230,20 @@ public class Client {
             }
         });
         thread.start();
+    }
+
+    private void updateUserChat(String sender, String decMessage) {
+        UserChatActivity userChat = userActivities.get(sender);
+        if(userChat!=null){
+            userChat.updateReceivedView(decMessage);
+        }
+
+    }
+
+    private void sendUpdateToUserList(String user) {
+        if(userListActivity!= null) {
+            userListActivity.updateList(user);
+        }
     }
 
     public static byte[] resolveImageString(String img) {
@@ -329,7 +366,8 @@ public class Client {
         return already;
     }
 
-    public String[] getUsers(){
+    public synchronized String[] getUsers() {
+        System.out.println("USER_KEYS FOUND" + userKeys.keySet());
         return userKeys.keySet().toArray(new String[0]);
     }
     //@ ensures \result.equals(name);

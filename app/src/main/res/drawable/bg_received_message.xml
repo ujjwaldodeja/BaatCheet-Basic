@@ -2,6 +2,6 @@
 <!-- res/drawable/bg_received_message.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="#9E9E9E" /> <!-- Grey color for received messages -->
+    <solid android:color="#2979FF" /> <!-- Grey color for received messages -->
     <corners android:radius="8dp" />
 </shape>

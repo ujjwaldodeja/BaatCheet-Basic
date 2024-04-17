@@ -44,6 +44,7 @@ public class UserChatActivity extends AppCompatActivity {
         sendButton = findViewById(R.id.sendButton);
         client = Client.getInstance();
         System.out.println("Instance created");
+        client.addUserActivity(this);
         // Add more messages as needed...
 
 //        client.setChatActivity(this);
@@ -65,7 +66,7 @@ public class UserChatActivity extends AppCompatActivity {
             new SendCommandTask().execute("TEXT~" + recipient + "~" + client.getName() + "~" + encryptedMessage);
 //            System.out.println(message + "MESSAGE_SENT at" + printTime());
             messageEditText.getText().clear();
-            updateSentView(recipient + ": " + message);
+            updateSentView(message);
         }
     }
 
@@ -75,8 +76,15 @@ public class UserChatActivity extends AppCompatActivity {
     }
 
     public void updateReceivedView(String message) {
-        addMessage(message, false);
+        runOnUiThread(() -> {
+            addMessage(message, false);
+        });
     }
+
+    public String getRecipient() {
+        return recipient;
+    }
+
     private class SendCommandTask extends AsyncTask<String, Void, Void> {
         @Override
         protected Void doInBackground(String... params) {
