@@ -29,7 +29,7 @@ public class UserListActivity extends AppCompatActivity {
             new SendCommandTask().execute("LIST");
         }           //asks for the online users once the activity is started
         try {
-            Thread.sleep(10);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -74,11 +74,12 @@ public class UserListActivity extends AppCompatActivity {
     }
 
 
-    private void startChatSession(String username) {
+    private void startChatSession(String recipient) {
         // Implement logic to start a new chat session with the selected user
-        // For example, you can start a new activity passing the selected username
+        // For example, you can start a new activity passing the selected recipient
+        //check for user activity if already created in client,
         Intent intent = new Intent(UserListActivity.this, UserChatActivity.class);
-        intent.putExtra("username", username);
+        intent.putExtra("recipient", recipient);
         startActivity(intent);
     }
 

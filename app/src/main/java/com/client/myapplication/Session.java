@@ -1,15 +1,29 @@
 package com.client.myapplication;
 
+import javax.crypto.SecretKey;
+
 public class Session {
-    private String recipient;
-    private final int LIMIT = 5;
+    private final int LIMIT = 2;
+
+    public synchronized int getCOUNT() {
+        return COUNT;
+    }
+
     private int COUNT;
 
-    public Session(String recipient){
-        this.recipient = recipient;
+    public Session() {
         COUNT = 0;
     }
-    public void incrementCount(){
+    public synchronized void incrementCount() {
         COUNT++;
+    }
+
+    public synchronized boolean isOver() {
+        return COUNT>=LIMIT;
+    }
+
+
+    public synchronized void reset() {
+        COUNT = 0;
     }
 }

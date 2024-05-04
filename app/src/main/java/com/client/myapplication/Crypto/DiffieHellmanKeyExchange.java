@@ -40,6 +40,10 @@ public class DiffieHellmanKeyExchange {
         keyAgreement.doPhase(otherPartyPublicKey, true);
 
         byte[] sharedSecret = keyAgreement.generateSecret();
+        return deriveSessionKey(sharedSecret);
+    }
+
+    public static SecretKey deriveSessionKey(byte[] sharedSecret){
         byte[] truncatedSecret = truncateOrPad(sharedSecret, 32);
         return new SecretKeySpec(truncatedSecret, "AES");
     }
