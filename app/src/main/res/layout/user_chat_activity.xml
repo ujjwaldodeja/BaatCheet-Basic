@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="true">
 
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="412dp"
         android:layout_height="476dp"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="4dp">
-
+        tools:layout_editor_absoluteY="4dp"
+        android:fillViewport="true">
         <LinearLayout
             android:id="@+id/messageContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"></LinearLayout>
-
+            android:padding="16dp">
+        </LinearLayout>
     </ScrollView>
 
     <EditText
@@ -39,23 +41,19 @@
         android:layout_marginTop="12dp"
         android:text="SEND"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.873"
+        app:layout_constraintHorizontal_bias="0.733"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/messageEditText" />
 
-    <LinearLayout
-        android:id="@+id/count"
-        android:layout_width="40dp"
-        android:layout_height="50dp"
-        android:layout_margin="8dp"
-        android:background="@drawable/edittext_border"
-        android:ems="10"
-        android:inputType="number"
-        android:outlineSpotShadowColor="#000000"
-        android:padding="8dp"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="34dp"
-        tools:layout_editor_absoluteY="553dp" />
-
+    <Button
+        android:id="@+id/sendImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="SEND_IMAGE"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.249"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/messageEditText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

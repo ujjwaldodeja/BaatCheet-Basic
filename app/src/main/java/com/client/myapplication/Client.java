@@ -8,7 +8,6 @@ import com.client.myapplication.Activities.StegChatActivity;
 import com.client.myapplication.Activities.UserChatActivity;
 import com.client.myapplication.Activities.UserListActivity;
 import com.client.myapplication.Crypto.DiffieHellmanKeyExchange;
-import com.client.myapplication.Crypto.E2EE;
 import com.client.myapplication.Stego.ImageSteganography;
 
 import java.io.BufferedReader;
@@ -173,56 +172,39 @@ public class Client {
                                     for (int i = 1; i < users.length; i++) {
                                         String[] userDetail = users[i].split(",");
                                         String userName = userDetail[0];
-                                        System.out.println(userName);
-
                                         String userPublicKeyBase64 = userDetail[1];
-                                        System.out.println(userPublicKeyBase64);
-
+//                                        System.out.println(userPublicKeyBase64);
                                         userKeys.putIfAbsent(userName, userPublicKeyBase64);
-
-//                                        SecretKey userSecret = DiffieHellmanKeyExchange.performKeyExchange(userPublicKeyBase64, getKeyPair());
-//                                        secretKeys.putIfAbsent(userName, userSecret);
-
-                                        System.out.println(users[i] + "\n");
+//                                        System.out.println(users[i] + "\n");
                                     }
-                                    System.out.println(userKeys + "\n");
+//                                    System.out.println(userKeys + "\n");
                                     System.out.println("SECRET" + secretKeys);
                                 }
                                 break;
                                 case "NEW_USER" : {
-//                                    sendCommand("LIST");
-
                                     String[] userDetails = command[1].split(",");
                                     System.out.println(Arrays.toString(userDetails));
                                     String username = userDetails[0];
-
                                     String userPublicKeyBase64 = userDetails[1];
                                     System.out.println(userPublicKeyBase64);
                                     userKeys.putIfAbsent(username, userPublicKeyBase64);    //recipient public key is received
-
-//                                    SecretKey userSecret = DiffieHellmanKeyExchange.performKeyExchange(userPublicKeyBase64, getKeyPair()); //secret key is generated
-//                                    secretKeys.putIfAbsent(username, userSecret);
-
                                     sendUpdateToUserList(username);
                                 }
                                 break;
                                 case "TEXT": {
                                     updateUserChat(command[1], command[2]);
-//                                    String decMessage = E2EE.decrypt(params[2], userActivities.get(sender).getSecretKey());
-//                                    System.out.println("\n" + decMessage + " at " + printTime());
-//
-//                                    updateUserChat(command[1], decMessage);
-
-//                                    updateChatViewOnUiThread("Message from " + command[1] + " " + decMessage);
                                 }
                                 break;
                                 case "IMAGE": {
-                                      System.out.println(line);
-                                      Bitmap stegoReceived = extractImage(command[2]);
-                                      updateImageViewOnUiThread(stegoReceived);
-                                      String encryptedMessage = extractMessage(stegoReceived, Integer.parseInt(command[3]));
-                                      updateEncryptedViewOnUiThread(encryptedMessage);
-                                      String sender = command[1];
+
+                                    updateUserChatImage(command[1], command[2], Integer.parseInt(command[3]), false);
+
+//                                      Bitmap stegoReceived = extractImage(command[2]);
+//                                      updateImageViewOnUiThread(stegoReceived);
+//                                      String encryptedMessage = extractMessage(stegoReceived, Integer.parseInt(command[3]));
+//                                      updateEncryptedViewOnUiThread(encryptedMessage);
+
+//                                      String sender = command[1];
 //                                      String decMessage = E2EE.decrypt(encryptedMessage, secretKeys.get(sender));
 //                                      System.out.println("STEG_CHECK 4: decrypted message" + decMessage + " at " + printTime());
 //                                      updateReceivedViewOnUiThread(command[1] + ":" + decMessage);
@@ -296,6 +278,16 @@ public class Client {
         if(userChat!=null){
             userChat.updateReceivedView(enMessage);
         }
+    }
+
+    private void updateUserChatImage(String sender, String image, int messageLength, boolean isCurrentUser) {
+        Bitmap stego = extractImage(image);
+        String encryptedMessage = extractMessage(stego, messageLength);
+        UserChatActivity userChat = userActivities.get(sender);
+        if(userChat != null) {
+            userChat.updateImage(stego, isCurrentUser);
+        }
+        updateUserChat(sender, encryptedMessage);
     }
 
     private void sendUpdateToUserList(String user) {

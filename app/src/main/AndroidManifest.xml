@@ -41,7 +41,8 @@
         <activity android:name=".Activities.SignUpActivity"
             />
         <activity android:name=".Activities.UserListActivity"/>
-        <activity android:name=".Activities.UserChatActivity"/>
+        <activity android:name=".Activities.UserChatActivity"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

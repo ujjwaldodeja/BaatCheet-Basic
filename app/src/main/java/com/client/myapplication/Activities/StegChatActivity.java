@@ -70,10 +70,7 @@ public class StegChatActivity extends AppCompatActivity {
 //        new SendCommandTask().execute("LIST");
 
         sendButton.setOnClickListener(view -> sendMessage());
-
-
         listButton.setOnClickListener(view -> new SendCommandTask().execute("LIST"));
-
         extractButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
