@@ -1,14 +1,8 @@
 package com.client.myapplication;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
-import com.client.myapplication.Activities.ChatActivity;
-import com.client.myapplication.Activities.StegChatActivity;
 import com.client.myapplication.Activities.UserChatActivity;
 import com.client.myapplication.Activities.UserListActivity;
 import com.client.myapplication.Crypto.DiffieHellmanKeyExchange;
-import com.client.myapplication.Stego.ImageSteganography;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -48,8 +42,6 @@ public class Client {
 
     private Map<String, String> userKeys = new HashMap<>();
     private Map<String, SecretKey> secretKeys = new HashMap<>();
-    private StegChatActivity stegActivity;
-    private ChatActivity chatActivity;
     private UserListActivity userListActivity;
     private Map<String, String> pending = new HashMap<>();
 
@@ -73,46 +65,8 @@ public class Client {
         return userKeys;
     }
 
-
-    public void setChatActivity(ChatActivity chatActivity) {
-        this.chatActivity = chatActivity;
-    }
-
     public void addUserActivity(UserChatActivity userChatActivity){
         userActivities.putIfAbsent(userChatActivity.getRecipient(), userChatActivity);
-    }
-
-    private void updateChatViewOnUiThread(String message) {
-        if (chatActivity != null) {
-            chatActivity.updateChatView(message);
-        }
-    }
-
-
-    public void setStegActivity(StegChatActivity stegActivity) {
-        this.stegActivity = stegActivity;
-    }
-//    private void updateImageViewOnUiThread(Uri image) {
-//        System.out.println(image);
-//        if (stegActivity != null) {       //just updates the received message view
-//            stegActivity.updateImageView(image);
-//        }
-//    }
-    private void updateImageViewOnUiThread(Bitmap image) {
-        System.out.println(image);
-        if (stegActivity != null) {       //just updates the received message view
-            stegActivity.updateImageView(image);
-        }
-    }
-    private void updateReceivedViewOnUiThread(String message) {
-        if (stegActivity != null) {       //just updates the received message view
-            stegActivity.updateReceivedView(message);
-        }
-    }
-    private void updateEncryptedViewOnUiThread(String message) {
-        if (stegActivity != null) {       //just updates the received message view
-            stegActivity.updateEncryptedView(message);
-        }
     }
 
     public static synchronized Client getInstance() {
@@ -192,22 +146,12 @@ public class Client {
                                 }
                                 break;
                                 case "TEXT": {
-                                    updateUserChat(command[1], command[2]);
+                                    updateTextMessages(command[1], command[2]);
+                                     //changed to directly accesing function
                                 }
                                 break;
                                 case "IMAGE": {
-
-                                    updateUserChatImage(command[1], command[2], Integer.parseInt(command[3]), false);
-
-//                                      Bitmap stegoReceived = extractImage(command[2]);
-//                                      updateImageViewOnUiThread(stegoReceived);
-//                                      String encryptedMessage = extractMessage(stegoReceived, Integer.parseInt(command[3]));
-//                                      updateEncryptedViewOnUiThread(encryptedMessage);
-
-//                                      String sender = command[1];
-//                                      String decMessage = E2EE.decrypt(encryptedMessage, secretKeys.get(sender));
-//                                      System.out.println("STEG_CHECK 4: decrypted message" + decMessage + " at " + printTime());
-//                                      updateReceivedViewOnUiThread(command[1] + ":" + decMessage);
+                                    updateImageMessages(command[1], command[2], Integer.parseInt(command[3]));
                                 }
                                 break;
                                 case "SESSION_REQUEST" : {
@@ -262,6 +206,19 @@ public class Client {
         });
         thread.start();
     }
+
+    private void updateTextMessages(String sender, String message){
+        UserChatActivity user =  userActivities.get(sender);
+        if(user!= null) {
+            user.updateReceivedView(message);
+        }
+    }
+    private void updateImageMessages(String sender, String imageText, int messageLength ){
+        UserChatActivity user = userActivities.get(sender);
+        if(user!= null) {
+            user.updateUserChatImage(imageText, messageLength, false);
+        }
+    }
     public synchronized boolean ifPending(String username) {
         return pending.get(username) != null;
     }
@@ -273,22 +230,6 @@ public class Client {
         pending.remove(username);
     }
 
-    private void updateUserChat(String sender, String enMessage) {
-        UserChatActivity userChat = userActivities.get(sender);
-        if(userChat!=null){
-            userChat.updateReceivedView(enMessage);
-        }
-    }
-
-    private void updateUserChatImage(String sender, String image, int messageLength, boolean isCurrentUser) {
-        Bitmap stego = extractImage(image);
-        String encryptedMessage = extractMessage(stego, messageLength);
-        UserChatActivity userChat = userActivities.get(sender);
-        if(userChat != null) {
-            userChat.updateImage(stego, isCurrentUser);
-        }
-        updateUserChat(sender, encryptedMessage);
-    }
 
     private void sendUpdateToUserList(String user) {
         if(userListActivity!= null) {
@@ -296,20 +237,7 @@ public class Client {
         }
     }
 
-    public static byte[] resolveImageString(String img) {
-        // Remove brackets and spaces from the input string
-        String cleanImg = img.replaceAll("\\[|\\]|\\s", "");
 
-        // Split the string into individual numbers
-        String[] imgArray = cleanImg.split(",");
-
-        // Create a byte array from the string numbers
-        byte[] byteArray = new byte[imgArray.length];
-        for (int i = 0; i < imgArray.length; i++) {
-            byteArray[i] = Byte.parseByte(imgArray[i].trim());
-        }
-        return byteArray;
-    }
 
     public String printTime() {
         // Get the current time
@@ -325,16 +253,9 @@ public class Client {
         return formattedTime;
     }
 
-    private Bitmap extractImage(String imageBytes) {
-        byte[] bytes = resolveImageString(imageBytes);
-        return BitmapFactory.decodeByteArray(bytes, 0 , bytes.length);
-    }
 
-    public String extractMessage(Bitmap imageMap, int messageLength) {
-        String encryptedMessage = ImageSteganography.decodeMessage(imageMap, messageLength); //extracting the encrypted message from encoded Image
-        System.out.println("STEG_CHECK 3: found hidden message " + encryptedMessage);
-        return encryptedMessage;
-    }
+
+
 
     public void sendCommand(String command) {
         try {
@@ -391,7 +312,6 @@ public class Client {
         this.username = name;
     }
 
-
     public synchronized void logout() {
         loggedIn = false;
         already = false;
@@ -408,7 +328,6 @@ public class Client {
     public synchronized SecretKey getSharedSecret(String recipient){
         return secretKeys.get(recipient);
     }
-
 
     public synchronized String getPendingKey(String recipient) {
         return pending.get(recipient);

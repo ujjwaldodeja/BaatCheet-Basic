@@ -1,4 +1,4 @@
-package com.client.myapplication.Activities;
+package com.client.myapplication.old;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -75,9 +75,6 @@ public class UserListActivity extends AppCompatActivity {
 
 
     private void startChatSession(String recipient) {
-        // Implement logic to start a new chat session with the selected user
-        // For example, you can start a new activity passing the selected recipient
-        //check for user activity if already created in client,
         Intent intent = new Intent(UserListActivity.this, UserChatActivity.class);
         intent.putExtra("recipient", recipient);
         startActivity(intent);

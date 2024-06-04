@@ -32,11 +32,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.MenuActivity"
+        <activity android:name=".old.MenuActivity"
             />
-        <activity android:name=".Activities.StegChatActivity"
+        <activity android:name=".old.StegChatActivity"
             />
-        <activity android:name=".Activities.ChatActivity"
+        <activity android:name=".old.ChatActivity"
             />
         <activity android:name=".Activities.SignUpActivity"
             />

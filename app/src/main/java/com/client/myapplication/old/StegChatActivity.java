@@ -1,4 +1,4 @@
-package com.client.myapplication.Activities;
+package com.client.myapplication.old;
 
 
 import android.content.res.AssetManager;
@@ -64,7 +64,6 @@ public class StegChatActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         client = Client.getInstance();
         System.out.println("Instance created");
-        client.setStegActivity(this);     // creates a steg activity for the current client
 //        updateChatView("LOGGED IN");
 
 //        new SendCommandTask().execute("LIST");

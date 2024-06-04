@@ -115,7 +115,6 @@ public class UserChatActivity extends AppCompatActivity {
         session = new Session();
         sendButton.setOnClickListener(view -> sendMessage());
         sendImage.setOnClickListener(view -> sendImage());
-
     }
 
     public void onBackPressed() {
@@ -179,7 +178,6 @@ public class UserChatActivity extends AppCompatActivity {
             messageEditText.getText().clear();
 
             updateImage(encodedImage, true); //this is the newly formed image
-
             updateSentView(message);
         }
     }
@@ -294,7 +292,7 @@ public class UserChatActivity extends AppCompatActivity {
         textView.setLayoutParams(params);
         messageContainer.addView(textView);
     }
-    public void updateImage(Bitmap image, boolean sentByCurrentUser) {
+    public ImageView updateImage(Bitmap image, boolean sentByCurrentUser) {
         ImageView imageView = new ImageView(this);
         imageView.setBackgroundResource(R.drawable.image_border);
         if (image != null) {
@@ -320,6 +318,7 @@ public class UserChatActivity extends AppCompatActivity {
                 messageContainer.addView(imageView);
             });
         }
+        return imageView;
     }
 
     private void updateCount(){
@@ -336,4 +335,42 @@ public class UserChatActivity extends AppCompatActivity {
         }
     }
 
+    private Bitmap extractImage(String imageBytes) {
+        byte[] bytes = resolveImageString(imageBytes);
+        return BitmapFactory.decodeByteArray(bytes, 0 , bytes.length);
+    }
+
+    public String extractMessage(Bitmap imageMap, int messageLength) {
+        String encryptedMessage = ImageSteganography.decodeMessage(imageMap, messageLength); //extracting the encrypted message from encoded Image
+        System.out.println("STEG_CHECK 3: found hidden message " + encryptedMessage);
+        return encryptedMessage;
+    }
+
+    public void updateUserChatImage(String image, int messageLength, boolean isCurrentUser) {
+        Bitmap stego = extractImage(image);
+        ImageView imageView = updateImage(stego, isCurrentUser);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String encryptedMessage = extractMessage(stego, messageLength);
+                updateReceivedView(encryptedMessage);
+            }
+        });
+
+    }
+
+    public static byte[] resolveImageString(String img) {
+        // Remove brackets and spaces from the input string
+        String cleanImg = img.replaceAll("\\[|\\]|\\s", "");
+
+        // Split the string into individual numbers
+        String[] imgArray = cleanImg.split(",");
+
+        // Create a byte array from the string numbers
+        byte[] byteArray = new byte[imgArray.length];
+        for (int i = 0; i < imgArray.length; i++) {
+            byteArray[i] = Byte.parseByte(imgArray[i].trim());
+        }
+        return byteArray;
+    }
 }

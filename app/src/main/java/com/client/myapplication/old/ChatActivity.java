@@ -1,4 +1,4 @@
-package com.client.myapplication.Activities;
+package com.client.myapplication.old;
 
 
 import android.os.AsyncTask;
@@ -42,7 +42,6 @@ public class ChatActivity extends AppCompatActivity {
 //        lastReceived = findViewById(R.id.lastReceived);
         client = Client.getInstance();
         System.out.println("Instance created");
-        client.setChatActivity(this);
 //        updateChatView("LOGGED IN");
 
         new SendCommandTask().execute("LIST"); //fetches the list automatically without external buttons
