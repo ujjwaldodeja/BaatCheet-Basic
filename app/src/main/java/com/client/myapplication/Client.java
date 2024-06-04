@@ -35,7 +35,7 @@ public class Client {
     Socket socket = null;
     BufferedWriter writer;
     String username;
-    String address = "192.168.31.167";
+    String address = "145.126.89.230";
     int port = 8080;
     private boolean loggedIn = false;
     private boolean already = false;

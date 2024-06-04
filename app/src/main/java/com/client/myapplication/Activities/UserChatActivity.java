@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,6 +24,7 @@ import com.client.myapplication.R;
 import com.client.myapplication.Session;
 import com.client.myapplication.Stego.ImageSteganography;
 import com.client.myapplication.Stego.ImageUtils;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -63,7 +65,7 @@ public class UserChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_chat_activity);    //create layout
         messageContainer = findViewById(R.id.messageContainer);
-
+        // Set custom icon
         Intent intent = getIntent();
         if(intent != null) {
             String recipient_name = intent.getStringExtra("recipient");
@@ -113,6 +115,12 @@ public class UserChatActivity extends AppCompatActivity {
         session = new Session();
         sendButton.setOnClickListener(view -> sendMessage());
         sendImage.setOnClickListener(view -> sendImage());
+
+    }
+
+    public void onBackPressed() {
+       Intent intent = new Intent(UserChatActivity.this, UserListActivity.class);
+       startActivity(intent);
     }
 
     public void sendMessage() {
